@@ -1,50 +1,50 @@
-# blender2pmxem
+# blender2pmxemn
 
-Blender2PmxeをBlender2.80系に対応させるよ
+Blender 5.1 系での動作を目指して調整している `blender2pmxem` の fork です。
 
 ## 概要
 
-PMX形式のファイルのインポート・エクスポートを行うBlenderアドオンです。
+PMX 形式ファイルのインポート・エクスポートを行う Blender アドオンです。
 
-KAGAYAS氏の改変Blender2Pmxe([配布ミラー](https://bowlroll.net/file/145391))を、Blenderの2.80向けに改変したものです。
-
-## 使いかたなど
-
-https://blender2pmxem.netlify.app/
+KAGAYAS 氏の改変 Blender2Pmxe をもとに、Blender 2.80 向けへ移植された
+[`matunnkazumi/blender2pmxem`](https://github.com/matunnkazumi/blender2pmxem) を、さらに Blender 5.1 で動作させることを目的に調整しています。
 
 ## ライセンス
-改変元のライセンスに従います。
 
-それ以外の完全に新規に作成したファイルは [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode) です。
+改変前のライセンスに従います。
 
-## 更新履歴
-[CHANGELOG](CHANGELOG.md)
+新規追加したファイルは、特に記載がない限り [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode) とします。
 
-## 進捗
-とりあえず動いているっぽい。
+## Blender 5.1 対応メモ
 
-## Blender2Pmxeからの移行について
+現時点では、まず以下を優先して確認・対応しています。
 
-Blender 2.79以前 + Blender2Pmxe の.blendファイルとXMLファイルをそのままでは正常にエクスポートできません。仕様の変更点を元にモデルの修正を行ってください。
+- アドオン登録
+- PMX のインポート / エクスポート
+- XML 作成と連携
+- テンプレート追加と主要ツール
 
-XMLファイルはインポートもしくは「XMLファイル作成」機能で作り直すことを推奨します。
+以下の旧機能は Blender 5.1 の API 変更が大きいため、初期対応の対象外としています。
 
-## Blender2Pmxe からの仕様の変更点
+- Blender Internal 前提の Solidify Edge 補助機能
+- `texface` / `texture_slots` 前提の旧補助機能
 
-* インポート・エクスポート
-  * PMX形式の材質の設定は、BlenderのマテリアルのプリンシプルBSDFノードと対応させています
-    * 拡散色 → ベースカラー
-    * テクスチャファイル → ベースカラーの画像テクスチャノードのファイル
-  * 材質色、スフィアマップ設定は、モデル情報のXMLに保存・取得するようにしました
-  * 状態検証を行い、処理できない場合にエラーになるようにしました
-* ツールのUI
-  * ツールシェルフからサイドバーに移動しました
-  * 以下を削除しました
-    * 輪郭線機能
-    * Mat to tex
-    * 「陰影なし」チェックボックス
-    * 「裏面を非表示」チェックボックス
-* XML
-  * ボーンの並び順をXMLの順番でエクスポートするようにしました
-  * constraints要素のbody_Aとbody_Bを剛体名に変更しました
-  * 材質モーフ・ボーンモーフ・グループモーフをXMLに保存するようにしました
+Blender 5.1 上では、以下の順で確認する想定です。
+
+- アドオンを有効化できる
+- PMX をインポートできる
+- XML を作成できる
+- PMX をエクスポートできる
+- Template Append と主要ツールが最低 1 ケース動く
+
+## Branch Strategy
+
+このリポジトリは [`matunnkazumi/blender2pmxem`](https://github.com/matunnkazumi/blender2pmxem) の fork です。
+fork 元の実装と差分管理をしやすくするため、追跡用ブランチと本リポジトリ独自の開発ブランチを分けて運用します。
+
+- `upstream-master`: fork 元 `master` の追跡用
+- `upstream-develop`: fork 元 `develop` の追跡用
+- `main`: 本リポジトリの安定ブランチ
+- `develop`: 本リポジトリの開発ブランチ
+
+詳しくは [docs/branch-strategy.md](docs/branch-strategy.md) を参照してください。
