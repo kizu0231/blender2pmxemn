@@ -46,5 +46,16 @@ fork 元の実装と差分管理をしやすくするため、追跡用ブラン
 - `upstream-develop`: fork 元 `develop` の追跡用
 - `main`: 本リポジトリの安定ブランチ
 - `develop`: 本リポジトリの開発ブランチ
+- `master`: fork 作成時に残る互換用ブランチ。通常運用では使いません
 
 詳しくは [docs/branch-strategy.md](docs/branch-strategy.md) を参照してください。
+
+## Development Policy
+
+今後の改修方針は、まず既存機能を Blender 5.1 上で安定して使えるようにすることを優先します。
+
+- 第1優先: 既存機能の Blender 5.1 対応
+- 第2優先: import / export の round-trip 品質改善
+- 第3優先: 構造整理や CI 改善
+
+詳しくは [docs/development-policy.md](docs/development-policy.md) を参照してください。
