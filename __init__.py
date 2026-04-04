@@ -20,16 +20,13 @@ import bpy
 from itertools import zip_longest
 
 bl_info = {
-    "name": "MMD PMX Format (Extend)",
-    "author": "matunnkazumi",
+    "name": "MMD:blender2pmxemn",
+    "author": "k.izu.0231",
     "version": (1, 1, 5),
     "blender": (5, 1, 0),
     "location": "File > Import-Export",
     "description": "Import-Export PMX model data",
     "warning": "",
-    "wiki_url": "https://github.com/matunnkazumi/blender2pmxem/wiki",
-    "tracker_url": "https://github.com/matunnkazumi/blender2pmxem/issues",
-    "doc_url": "https://blender2pmxem.netlify.app/",
     "category": "Import-Export"
 }
 

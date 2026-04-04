@@ -844,8 +844,10 @@ def write_pmx_data(context, filepath="",
                     shape_key_error = True
                     mesh = e.data
 
-            # Re-calc Normals
-            mesh.calc_normals()
+            # Blender 5.x may advertise RNA attributes that are not callable from Python.
+            calc_normals = getattr(mesh, "calc_normals", None)
+            if callable(calc_normals):
+                calc_normals()
 
             # Custom Normals
             normals = {}
