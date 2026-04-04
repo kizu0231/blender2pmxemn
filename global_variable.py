@@ -69,4 +69,6 @@ class Init(object):
                 self.VertCount
             ))
 
-        bpy.ops.wm.memory_statistics()
+        memory_stats = getattr(bpy.ops.wm, "memory_statistics", None)
+        if memory_stats is not None and memory_stats.poll():
+            memory_stats()

@@ -18,6 +18,57 @@ ArmTwistPos = (0.32, 0.52, 0.72, 0.6)
 WristTwistPos = (0.285, 0.497, 0.708, 0.6)
 
 
+def get_mesh_color_layer(mesh, name):
+    color_attributes = getattr(mesh, "color_attributes", None)
+    if color_attributes is not None:
+        return color_attributes.get(name)
+    return mesh.vertex_colors.get(name)
+
+
+def ensure_mesh_color_layer(mesh, name):
+    color_attributes = getattr(mesh, "color_attributes", None)
+    if color_attributes is not None:
+        color_map = color_attributes.get(name)
+        if color_map is None:
+            color_map = color_attributes.new(name=name, type='BYTE_COLOR', domain='CORNER')
+        if hasattr(color_attributes, "active_color_index"):
+            for index, attr in enumerate(color_attributes):
+                if attr.name == name:
+                    color_attributes.active_color_index = index
+                    break
+        return color_map
+
+    color_map = mesh.vertex_colors.get(name)
+    if color_map is None:
+        color_map = mesh.vertex_colors.new(name=name)
+    color_map.active = True
+    return color_map
+
+
+def remove_mesh_color_layer(mesh, name):
+    color_attributes = getattr(mesh, "color_attributes", None)
+    if color_attributes is not None:
+        color_map = color_attributes.get(name)
+        if color_map is not None:
+            color_attributes.remove(color_map)
+        return
+
+    color_map = mesh.vertex_colors.get(name)
+    if color_map is not None:
+        mesh.vertex_colors.remove(color_map)
+
+
+def apply_pose_as_rest():
+    if not hasattr(bpy.ops.pose, "armature_apply"):
+        return
+
+    if bpy.ops.pose.armature_apply.poll():
+        try:
+            bpy.ops.pose.armature_apply(selected=False)
+        except TypeError:
+            bpy.ops.pose.armature_apply()
+
+
 def Get_Edit_Bone(edit_bones, jp_name, en_name):
     eb = edit_bones.get(jp_name)
     if eb is None:
@@ -612,14 +663,11 @@ class B2PMXEM_OT_CreateWeightType(bpy.types.Operator):
                 continue
 
             # get vertex_color group
-            color_map = mesh.vertex_colors.get(GV.WeightTypeName)
+            color_map = get_mesh_color_layer(mesh, GV.WeightTypeName)
 
             # create new vertex_color group
             if color_map is None:
-                color_map = mesh.vertex_colors.new(name=GV.WeightTypeName)
-
-            # Set active group
-            color_map.active = True
+                color_map = ensure_mesh_color_layer(mesh, GV.WeightTypeName)
 
             bone_names = arm_obj.data.bones.keys()
             color_list = []
@@ -665,11 +713,7 @@ class B2PMXEM_OT_DeleteWeightType(bpy.types.Operator):
             if obj.type != 'MESH':
                 continue
 
-            vertex_colors = obj.data.vertex_colors
-            color_map = vertex_colors.get(GV.WeightTypeName)
-
-            if color_map is not None:
-                vertex_colors.remove(color_map)
+            remove_mesh_color_layer(obj.data, GV.WeightTypeName)
 
         return {'FINISHED'}
 
@@ -745,7 +789,7 @@ class B2PMXEM_OT_RebindArmature(bpy.types.Operator):
         apply_mod.finish()
 
         # apply pose as rest pose
-        bpy.ops.pose.armature_apply()
+        apply_pose_as_rest()
 
         bpy.ops.object.mode_set(mode='EDIT')
 
@@ -761,8 +805,11 @@ def set_custom_shape(context, pose_bone, shape):
         shape_obj = bpy.data.objects.get(shape)
 
         if shape_obj is None:
-            append_object(shape)
-            shape_obj = bpy.data.objects[shape]
+            appended_objects = append_object(shape, activeflag=False)
+            if appended_objects:
+                shape_obj = appended_objects[0]
+            else:
+                shape_obj = bpy.data.objects.get(shape)
 
             # Delete shape object
             context.collection.objects.unlink(shape_obj)
@@ -1145,20 +1192,34 @@ class B2PMXEM_OT_SleeveBones(bpy.types.Operator):
 
 def append_object(objname, activeflag=True):
     path_script = os.path.dirname(__file__)
-    path_object = "\\Object\\"
+    path_object = "Object"
     file_name = "template.blend"
 
-    opath = "//" + file_name + path_object + objname
-    dpath = os.path.join(path_script, file_name + path_object)
+    blend_path = os.path.join(path_script, file_name)
+    directory = os.path.join(blend_path, path_object)
+    before_names = set(bpy.data.objects.keys())
 
-    bpy.ops.wm.link(
-        filepath=opath,     # "//filename.blend\\Folder\\"
-        directory=dpath,    # "fullpath + \\Folder
-        filename=objname,   # "object_name
-        relative_path=True,
+    bpy.ops.wm.append(
+        filepath=os.path.join(directory, objname),
+        directory=directory,
+        filename=objname,
         link=False,
-        autoselect=activeflag,
-        active_collection=activeflag)
+        do_reuse_local_id=True,
+    )
+
+    appended_objects = [obj for obj in bpy.data.objects if obj.name not in before_names]
+    if not appended_objects:
+        existing_object = bpy.data.objects.get(objname)
+        if existing_object is not None:
+            appended_objects = [existing_object]
+
+    if activeflag and appended_objects:
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in appended_objects:
+            obj.select_set(True)
+        bpy.context.view_layer.objects.active = appended_objects[0]
+
+    return appended_objects
 
 
 class B2PMXEM_OT_AppendTemplate(bpy.types.Operator):
@@ -1181,9 +1242,7 @@ class B2PMXEM_OT_AppendTemplate(bpy.types.Operator):
         prefs = context.preferences.addons[GV.FolderName].preferences
 
         name = self.type + '_Arm'
-        append_object(name)
-
-        ao = context.selected_objects
+        ao = append_object(name)
         if len(ao):
             context.view_layer.objects.active = ao[0]
 
@@ -1212,7 +1271,7 @@ class B2PMXEM_OT_AppendTemplate(bpy.types.Operator):
             # want to A pose? then
             if not prefs.use_T_stance:
                 bpy.ops.b2pmxem.to_stance(to_A_stance=True)
-                bpy.ops.pose.armature_apply()
+                apply_pose_as_rest()
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -1234,8 +1293,9 @@ class B2PMXEM_OT_DeleteRight(bpy.types.Operator):
     def execute(self, context):
         arm_obj = context.active_object
 
-        bpy.ops.object.select_pattern(pattern="*_R", extend=False)
-        bpy.ops.object.select_pattern(pattern="*.R", extend=True)
+        for bone in arm_obj.data.edit_bones:
+            select = bone.name.endswith("_R") or bone.name.endswith(".R")
+            bone.select = bone.select_head = bone.select_tail = select
 
         if len(context.selected_editable_bones):
             if arm_obj.data.use_mirror_x:
@@ -1262,8 +1322,10 @@ class B2PMXEM_OT_SelectLeft(bpy.types.Operator):
         return (obj and obj.type == 'ARMATURE' and obj.mode == 'EDIT')
 
     def execute(self, context):
-        bpy.ops.object.select_pattern(pattern="*_L", extend=False)
-        bpy.ops.object.select_pattern(pattern="*.L", extend=True)
+        arm_obj = context.active_object
+        for bone in arm_obj.data.edit_bones:
+            select = bone.name.endswith("_L") or bone.name.endswith(".L")
+            bone.select = bone.select_head = bone.select_tail = select
         return {'FINISHED'}
 
 
@@ -1406,8 +1468,7 @@ class B2PMXEM_OT_LockLoc(bpy.types.Operator):
         for bone in context.selected_pose_bones:
             bone.lock_location = [self.flag, self.flag, self.flag]
 
-        bpy.ops.object.posemode_toggle()
-        bpy.ops.object.posemode_toggle()
+        context.view_layer.update()
 
         return {'FINISHED'}
 
@@ -1434,8 +1495,7 @@ class B2PMXEM_OT_LockRot(bpy.types.Operator):
         for bone in context.selected_pose_bones:
             bone.lock_rotation = [self.flag, self.flag, self.flag]
 
-        bpy.ops.object.posemode_toggle()
-        bpy.ops.object.posemode_toggle()
+        context.view_layer.update()
 
         return {'FINISHED'}
 

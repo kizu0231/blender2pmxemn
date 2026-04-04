@@ -1,6 +1,6 @@
 # blender2pmxem
 
-Blender2PmxeをBlender2.80系に対応させるよ
+Blender2PmxeをBlende5.10系に対応させるよ
 
 ## 概要
 
@@ -19,6 +19,28 @@ https://blender2pmxem.netlify.app/
 
 ## 更新履歴
 [CHANGELOG](CHANGELOG.md)
+
+## Blender 5.1 対応メモ
+
+初回対応では、以下を優先しています。
+
+* アドオン登録
+* PMX のインポート / エクスポート
+* XML 作成と連携
+* テンプレート追加と主要な骨ツール
+
+以下の旧機能は Blender 5.1 の API 変更が大きいため、今回は本線対応の対象外です。
+
+* Blender Internal 前提の Solidify Edge 補助機能
+* texface / texture_slots 前提の旧補助機能
+
+動作確認は Blender 5.1 上で次を順に行ってください。
+
+* アドオンを有効化できる
+* PMX をインポートできる
+* XML を作成できる
+* そのまま PMX をエクスポートできる
+* Template Append と主要骨ツールが最低 1 ケース動く
 
 ## 進捗
 とりあえず動いているっぽい。
