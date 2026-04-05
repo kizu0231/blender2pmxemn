@@ -22,7 +22,7 @@ from itertools import zip_longest
 bl_info = {
     "name": "MMD:blender2pmxemn",
     "author": "k.izu.0231",
-    "version": (1, 1, 5),
+    "version": (0, 1, 0),
     "blender": (5, 1, 0),
     "location": "File > Import-Export",
     "description": "Import-Export PMX model data",
