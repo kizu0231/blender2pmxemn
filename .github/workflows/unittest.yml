@@ -24,6 +24,10 @@ jobs:
         with:
           python-version: '3.10'
           architecture: 'x64'
+      - name: install system dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libeigen3-dev
       - name: install required package
         run: pip install mathutils
       - name: unittest discoverly
