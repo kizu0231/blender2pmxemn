@@ -708,10 +708,15 @@ def read_pmx_data(context, filepath="",
                     for v in data.Offsets:
                         temp_key.data[v.Index].co += GT(v.Move, GlobalMatrix)
 
+                    # Import should start from an unapplied morph state.
+                    temp_key.value = 0.0
                     mesh.update()
 
             # To activate "Basis" shape
             obj_mesh.active_shape_key_index = 0
+            if mesh.shape_keys is not None:
+                for key_block in mesh.shape_keys.key_blocks[1:]:
+                    key_block.value = 0.0
 
         bpy.context.view_layer.update()
 
