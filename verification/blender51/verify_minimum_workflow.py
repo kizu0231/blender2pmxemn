@@ -94,7 +94,7 @@ def select_pose_bones_for_headless(armature, target_bone_name):
 
 def make_work_dir():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    work_dir = os.path.join(FOR_LOCAL_DIR, f"tmp_issue13_{timestamp}")
+    work_dir = os.path.join(FOR_LOCAL_DIR, f"tmp_minimum_workflow_{timestamp}")
     os.makedirs(work_dir, exist_ok=True)
     return work_dir
 
@@ -108,7 +108,7 @@ def run():
     working_pmx = os.path.join(work_dir, "default.pmx")
     shutil.copyfile(default_pmx, working_pmx)
 
-    blend_path = os.path.join(work_dir, "issue13_check.blend")
+    blend_path = os.path.join(work_dir, "minimum_workflow_check.blend")
     shutil.copyfile(os.path.join(SAMPLE_DIR, "sample.blend"), blend_path)
 
     bpy.ops.wm.open_mainfile(filepath=blend_path, load_ui=False)
@@ -132,7 +132,7 @@ def run():
     xml_path = os.path.join(work_dir, "default.xml")
     mark(results, "xml_make", xml_result == {"FINISHED"} and os.path.isfile(xml_path), str(xml_result))
 
-    export_path = os.path.join(work_dir, "issue13_exported.pmx")
+    export_path = os.path.join(work_dir, "minimum_workflow_exported.pmx")
     export_result = bpy.ops.export.pmx_data_em(
         filepath=export_path,
         encode_type="OPT_Utf-16",

@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: zip
         run: zip -r blender2pmxem.zip . -x  '/*.git/*' '/*.github/*' '/*__pycache_/*' '/*.gitignore' '/*.pep8' '/*tests/*' '/*.editorconfig'
       - name: upload artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7
         with:
           name: package
           path: blender2pmxem.zip

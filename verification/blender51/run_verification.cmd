@@ -10,7 +10,11 @@ if "%~1"=="" (
 set "BLENDER_PATH=%~1"
 set "SCRIPT_NAME=%~2"
 
-if "%SCRIPT_NAME%"=="" set "SCRIPT_NAME=check_issue13_coverage.py"
+if "%SCRIPT_NAME%"=="" set "SCRIPT_NAME=verify_minimum_workflow.py"
+
+if /I "%SCRIPT_NAME%"=="check_issue13_coverage.py" set "SCRIPT_NAME=verify_minimum_workflow.py"
+if /I "%SCRIPT_NAME%"=="check_xml_and_weight_tools.py" set "SCRIPT_NAME=verify_xml_and_weight_tools.py"
+if /I "%SCRIPT_NAME%"=="check_shape_key_and_stance_tools.py" set "SCRIPT_NAME=verify_shape_key_and_stance_tools.py"
 
 set "SCRIPT_DIR=%~dp0"
 for %%I in ("%SCRIPT_DIR%..\..") do set "REPO_ROOT=%%~fI"
