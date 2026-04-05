@@ -77,6 +77,21 @@ def describe_pose_selection():
     }
 
 
+def select_pose_bones_for_headless(armature, target_bone_name):
+    bpy.ops.object.mode_set(mode="OBJECT")
+    bpy.ops.object.select_all(action="DESELECT")
+    armature.select_set(True)
+    bpy.context.view_layer.objects.active = armature
+    bpy.ops.object.mode_set(mode="POSE")
+    bpy.ops.pose.select_all(action="SELECT")
+
+    target_bone = armature.data.bones[target_bone_name]
+    armature.data.bones.active = target_bone
+    bpy.context.view_layer.update()
+
+    return describe_pose_selection()
+
+
 def make_work_dir():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     work_dir = os.path.join(FOR_LOCAL_DIR, f"tmp_issue13_{timestamp}")
@@ -139,19 +154,8 @@ def run():
     bone_tool_ok = False
     bone_tool_detail = "append failed"
     if append_ok and appended_armature.pose.bones:
-        bpy.ops.object.mode_set(mode="POSE")
-        for bone in appended_armature.data.bones:
-            for attr in ("select", "select_head", "select_tail"):
-                if hasattr(bone, attr):
-                    setattr(bone, attr, False)
-            if hasattr(bone, "hide_select"):
-                bone.hide_select = False
         first_bone = appended_armature.data.bones[0]
-        for attr in ("select", "select_head", "select_tail"):
-            if hasattr(first_bone, attr):
-                setattr(first_bone, attr, True)
-        appended_armature.data.bones.active = first_bone
-        selection_state = describe_pose_selection()
+        selection_state = select_pose_bones_for_headless(appended_armature, first_bone.name)
         lock_result = bpy.ops.b2pmxem.lock_rotation(flag=True)
         lock_state = list(appended_armature.pose.bones[first_bone.name].lock_rotation)
         bone_tool_ok = lock_result == {"FINISHED"} and all(lock_state)
