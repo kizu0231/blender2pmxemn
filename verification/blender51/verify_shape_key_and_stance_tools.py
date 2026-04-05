@@ -109,7 +109,12 @@ def run():
     import_result = getattr(bpy.ops, "import").pmx_data_em(filepath=working_pmx, adjust_bone_position=False)
     armature = find_armature()
     meshes = find_meshes_for_armature(armature) if armature else []
-    mark(results, "pmx_import", import_result == {"FINISHED"} and armature is not None and len(meshes) > 0, str(import_result))
+    mark(
+        results,
+        "pmx_import",
+        import_result == {"FINISHED"} and armature is not None and len(meshes) > 0,
+        str(import_result),
+    )
 
     mesh_obj, shape_keys = first_shape_keys(meshes)
     if shape_keys is None:
