@@ -20,16 +20,13 @@ import bpy
 from itertools import zip_longest
 
 bl_info = {
-    "name": "MMD PMX Format (Extend)",
-    "author": "matunnkazumi",
-    "version": (1, 1, 5),
-    "blender": (2, 80, 0),
+    "name": "MMD:blender2pmxemn",
+    "author": "k.izu.0231",
+    "version": (0, 1, 0),
+    "blender": (5, 1, 0),
     "location": "File > Import-Export",
     "description": "Import-Export PMX model data",
     "warning": "",
-    "wiki_url": "https://github.com/matunnkazumi/blender2pmxem/wiki",
-    "tracker_url": "https://github.com/matunnkazumi/blender2pmxem/issues",
-    "doc_url": "https://blender2pmxem.netlify.app/",
     "category": "Import-Export"
 }
 
@@ -131,12 +128,8 @@ class Blender2PmxemProperties(bpy.types.PropertyGroup):
         bpy.types.Scene.b2pmxem_properties = PointerProperty(type=cls)
 
         def toggle_shadeless(self, context):
-            context.space_data.show_textured_shadeless = self.shadeless
-
-            # Toggle Material Shadeless
-            for mat in bpy.data.materials:
-                if mat:
-                    mat.use_shadeless = self.shadeless
+            # Legacy shadeless preview APIs were removed in newer Blender versions.
+            _ = context
 
         cls.edge_color = FloatVectorProperty(
             name="Color",
@@ -798,7 +791,7 @@ class B2PMXEM_PT_ObjectPanel(bpy.types.Panel):
         # Get Solidify Edge Flag
         if ao and ao.type == 'MESH':
             # WeightType Group
-            color_map = ao.data.vertex_colors.get(GV.WeightTypeName)
+            color_map = add_function.get_mesh_color_layer(ao.data, GV.WeightTypeName)
 
         # Tools
 

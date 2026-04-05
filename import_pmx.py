@@ -599,20 +599,14 @@ def read_pmx_data(context, filepath="",
             return arm_obj, obj_mesh
 
         # Add Textures
-        # image_dic = {}
-        textures_dic = {}
+        images_dic = {}
         NG_tex_list = []
         for (tex_index, tex_data) in enumerate(pmx_data.Textures):
             tex_path = os.path.join(base_path, tex_data.Path)
             try:
-                bpy.ops.image.open(filepath=tex_path)
-                # image_dic[tex_index] = bpy.data.images[len(bpy.data.images)-1]
-                textures_dic[tex_index] = bpy.data.textures.new(os.path.basename(tex_path), type='IMAGE')
-                textures_dic[tex_index].image = bpy.data.images[os.path.basename(tex_path)]
-
-                # Use Alpha
-                textures_dic[tex_index].image.alpha_mode = 'PREMUL'
-
+                image = bpy.data.images.load(tex_path, check_existing=True)
+                image.alpha_mode = 'PREMUL'
+                images_dic[tex_index] = image
             except RuntimeError:
                 NG_tex_list.append(tex_data.Path)
 
@@ -654,9 +648,8 @@ def read_pmx_data(context, filepath="",
             # self.EdgeSize = 1.0
 
             # Texture
-            if mat_data.TextureIndex != -1 and mat_data.TextureIndex in textures_dic:
-                temp_tex = textures_dic[mat_data.TextureIndex]
-                temp_principled.base_color_texture.image = temp_tex.image
+            if mat_data.TextureIndex != -1 and mat_data.TextureIndex in images_dic:
+                temp_principled.base_color_texture.image = images_dic[mat_data.TextureIndex]
                 temp_principled.base_color_texture.use_alpha = True
                 temp_principled.base_color_texture.texcoords = "UV"
 
@@ -715,10 +708,15 @@ def read_pmx_data(context, filepath="",
                     for v in data.Offsets:
                         temp_key.data[v.Index].co += GT(v.Move, GlobalMatrix)
 
+                    # Import should start from an unapplied morph state.
+                    temp_key.value = 0.0
                     mesh.update()
 
             # To activate "Basis" shape
             obj_mesh.active_shape_key_index = 0
+            if mesh.shape_keys is not None:
+                for key_block in mesh.shape_keys.key_blocks[1:]:
+                    key_block.value = 0.0
 
         bpy.context.view_layer.update()
 

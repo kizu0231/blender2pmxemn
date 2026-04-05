@@ -42,12 +42,9 @@ class ShapeVertexError(Exception):
 
 def make_evaluated_object(target_obj):
     depsgraph = bpy.context.evaluated_depsgraph_get()
-    for oi in depsgraph.object_instances:
-        oiname = oi.object.name
-        if oiname != target_obj.name:
-            continue
-        tmp_mesh = bpy.data.meshes.new_from_object(oi.object, preserve_all_data_layers=True, depsgraph=depsgraph)
-        return bpy.data.objects.new(tmp_mesh.name, tmp_mesh)
+    target_eval = target_obj.evaluated_get(depsgraph)
+    tmp_mesh = bpy.data.meshes.new_from_object(target_eval, preserve_all_data_layers=True, depsgraph=depsgraph)
+    return bpy.data.objects.new(tmp_mesh.name, tmp_mesh)
 
 
 class Init(object):

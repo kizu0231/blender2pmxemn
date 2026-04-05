@@ -1,0 +1,42 @@
+name: Blender 5.1 verification
+description: Blender 5.1 上での動作確認や未確認項目の切り分けに使うテンプレート
+title: "[Blender 5.1] "
+labels:
+  - type: poting
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: 何を確認したい issue かを簡潔に書いてください
+      placeholder: Blender 5.1 上で未確認または不安定な挙動を切り分ける
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: 親 issue や関連する実行結果、差分の文脈を書いてください
+      placeholder: |
+        - 親 issue: #13
+        - 関連 issue / PR:
+        - 実行した確認スクリプトや手順:
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: 確認したいこと
+      description: 成功条件や確認項目をチェックリストで列挙してください
+      placeholder: |
+        - [ ] Blender 5.1 実機で再現条件を確認する
+        - [ ] headless 実行との差を切り分ける
+        - [ ] main ブランチへ入れる対応か、後続 issue に分けるべきか判断する
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: メモ
+      description: 補足ログや注意点があれば書いてください
+      placeholder: 例: selection API や pose mode 切り替えが Blender 5.1 で変わっている可能性がある

@@ -844,16 +844,20 @@ def write_pmx_data(context, filepath="",
                     shape_key_error = True
                     mesh = e.data
 
-            # Re-calc Normals
-            mesh.calc_normals()
+            # Blender 5.x may advertise RNA attributes that are not callable from Python.
+            calc_normals = getattr(mesh, "calc_normals", None)
+            if callable(calc_normals):
+                calc_normals()
 
             # Custom Normals
             normals = {}
             if use_custom_normals and hasattr(mesh, "has_custom_normals"):
-                if mesh.has_custom_normals and mesh.use_auto_smooth:
+                auto_smooth_enabled = getattr(mesh, "use_auto_smooth", True)
+                if mesh.has_custom_normals and auto_smooth_enabled:
                     OK_normal_list.append(mesh_obj.name)
 
-                    mesh.calc_normals_split()
+                    if hasattr(mesh, "calc_normals_split"):
+                        mesh.calc_normals_split()
 
                     for loop in mesh.loops:
                         normals.setdefault(loop.vertex_index, loop.normal)
